@@ -33,6 +33,6 @@ app.get('/',function(req,res) {
 
   app.use(express.static(__dirname));
 
-app.listen(port,, () => {
+app.listen(port, () => {
   console.log(`Example app listening at https://localhost:${port}`)
 })
