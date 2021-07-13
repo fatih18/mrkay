@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>minExample</title>
+    <link rel="stylesheet" href="./assets/bootstrap.min.css">
+    <script src="./assets/config.js"></script>
+    <script src="./assets/main.js"></script>
+  </head>
+  <body>
+    <div class="globeParent" style="height:calc(100vh); overflow:hidden">
+      <canvas id="globe"></canvas>
+    </div>
+  </body>
+    <script type="text/javascript">
+      var { CSGlobe } = window.GlobeApi
+      var globeParameters = {
+      	canvas: document.getElementById('globe'),
+        globeMaxLodLevel: 19,
+				rasterMaxLodLevel: 18,
+      	raster: {
+      		url: RASTER_URL,
+      		type: window.GlobeApi.CSRasterTypes.WMS,
+      		maxLodLevel: 19,
+      		lowerLod: false,
+      		opacity: 1.0,
+      	},
+      	meshUrl: MESH_URL,
+      	globedll: GLOBEDLL_URL
+      }
+      myGlobe = new CSGlobe(globeParameters)
+      myGlobe.api_ShowDebug(false)
+    </script>
+  </body>
+</html>
