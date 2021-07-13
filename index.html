@@ -17,13 +17,15 @@
       var globeParameters = {
       	canvas: document.getElementById('globe'),
         globeMaxLodLevel: 19,
-				rasterMaxLodLevel: 18,
-      	raster: {
-      		url:"RASTER_URL21",
-		type: window.GlobeApi.CSRasterTypes.WMS,
+	rasterMaxLodLevel: 18,
+      		raster: {
+      		url: RASTER_URL21,
+      		type: window.GlobeApi.CSRasterTypes.XYZ_MERCATOR,
       		maxLodLevel: 19,
       		lowerLod: false,
       		opacity: 1.0,
+      		bbox: [-180, -90, 180, 90],
+          noDatatoEmptyImage : false
       	},
       	meshUrl: MESH_URL,
       	globedll: GLOBEDLL_URL
