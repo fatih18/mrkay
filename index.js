@@ -23,7 +23,7 @@
 
 const express = require('express')
 const app = express()
-const port = 8880 
+const port = 3000 
 
  
 
@@ -33,6 +33,6 @@ app.get('/',function(req,res) {
 
   app.use(express.static(__dirname));
 
-app.listen(8880,"192.168.56.1", () => {
+app.listen(port,, () => {
   console.log(`Example app listening at https://localhost:${port}`)
 })
