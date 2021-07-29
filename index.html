@@ -13,6 +13,15 @@
     </div>
   </body>
     <script type="text/javascript">
+	    
+      var PostMessageType = {
+        MESSAGE: "message",
+        EVENT: "event",
+        MAP_FUNC_CALL: "map_function_call",
+        API_FUNC_CALL: "api_function_call",
+        ERROR: "error"
+      }
+      
       var { CSGlobe } = window.GlobeApi
       var globeParameters = {
       	canvas: document.getElementById('globe'),
@@ -28,11 +37,118 @@
           noDatatoEmptyImage : false
       	},
       	meshUrl: MESH_URL,
-      	globedll: GLOBEDLL_URL
+      	globedll: GLOBEDLL_URL,
+        reportObj: function (values, mouseEvent) {
+	  RNPostMessage(PostMessageType.EVENT, {
+            "values": values,
+	    "mouseEvent": mouseEvent
+	  });
+	}
       }
       myGlobe = new CSGlobe(globeParameters)
+
+  var PrivateAPI = {
+    changeRaster: function () {
+      let rasterCount = myGlobe.api_RasterCount();
+
+      if (rasterCount > 0) {
+        myGlobe.api_DeleteRaster(rasterCount - 1);
+      }
+
+      myGlobe.api_AddRaster({
+        url: RASTER_URL2,
+        type: window.GlobeApi.CSRasterTypes.XYZ_MERCATOR,
+        maxLodLevel: 19,
+        lowerLod: false,
+        opacity: 1.0,
+        bbox: [-180, -90, 180, 90],
+        noDatatoEmptyImage: false
+      });
+    }
+  };
+
+  function checkPostType(postType) {
+    return Object.values(PostMessageType).includes(postType);
+  }
+
+  function receiveMessage(e) {
+    try {
+      let parsedData = JSON.parse(e.data);
+
+      if (parsedData.hasOwnProperty('type') && parsedData.hasOwnProperty('payload') && checkPostType(parsedData.type)) {
+        switch (parsedData.type) {
+          case PostMessageType.MAP_FUNC_CALL:
+            if (!parsedData.payload.hasOwnProperty('args') || !Array.isArray(parsedData.payload.args)) {
+              throw new Error("Missing post message params - args");
+            }
+
+            if (!myGlobe) {
+              throw new Error("Missing map instance");
+            }
+
+            if (!parsedData.payload.hasOwnProperty('name')) {
+              throw new Error("Missing post message params - name");
+            }
+
+            if (typeof myGlobe[parsedData.payload.name] == "function") {
+              myGlobe[parsedData.payload.name](...parsedData.payload.args);
+            } else {
+              throw new Error("Missing function - " + parsedData.payload.name);
+            }
+
+            break;
+
+          case PostMessageType.API_FUNC_CALL:
+            if (!parsedData.payload.hasOwnProperty('args') || !Array.isArray(parsedData.payload.args)) {
+              throw new Error("Missing post message params - args");
+            }
+
+            if (!myGlobe) {
+              throw new Error("Missing map instance");
+            }
+
+            if (!parsedData.payload.hasOwnProperty('name')) {
+              throw new Error("Missing post message params - name");
+            }
+
+            if (typeof PrivateAPI[parsedData.payload.name] == "function") {
+              PrivateAPI[parsedData.payload.name](...parsedData.payload.args);
+            } else {
+              throw new Error("Missing function - " + parsedData.payload.name);
+            }
+
+            break;
+          default:
+            break;
+        }
+      } else {
+        throw new Error("Invalid post message");
+      }
+    } catch (error) {
+      RNPostMessage(PostMessageType.ERROR, JSON.stringify(error))
+    }
+  }
+
+  function RNPostMessage(type, payload) {
+    window.ReactNativeWebView.postMessage(JSON.stringify({
+      "type": type,
+      "payload": payload
+    }));
+  }
+	    
+	    
       myGlobe.api_ShowDebug(false)
-	myGlobe.api_ShowOverview(false);
+      myGlobe.api_ShowOverview(false);
+	    
+      setTimeout((message) => { RNPostMessage(PostMessageType.MESSAGE, "Text message") }, 2000)
+
+      myGlobe.api_SetMouseEvents("eventType", function (e) {
+        RNPostMessage(PostMessageType.EVENT, e);
+      });
+
+      myGlobe.api_SetMouseEvents("down", function (e) {
+        RNPostMessage(PostMessageType.EVENT, e);
+      });
     </script>
   </body>
 </html>
