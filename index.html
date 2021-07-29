@@ -140,7 +140,9 @@
       myGlobe.api_ShowDebug(false)
       myGlobe.api_ShowOverview(false);
 	    
-      setTimeout((message) => { RNPostMessage(PostMessageType.MESSAGE, "Text message") }, 2000)
+      setTimeout((message) => { RNPostMessage(PostMessageType.MESSAGE, "Text message") }, 2000);
+
+      window.addEventListener('message', receiveMessage, true);
 
       myGlobe.api_SetMouseEvents("eventType", function (e) {
         RNPostMessage(PostMessageType.EVENT, e);
