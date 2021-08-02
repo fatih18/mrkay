@@ -156,6 +156,10 @@
 
       myGlobe.api_SetMouseEvents("click", function (e) {
         RNPostMessage(PostMessageType.EVENT, e);
+      });    
+
+      myGlobe.api_SetMouseEvents("move", function (e) {
+        RNPostMessage(PostMessageType.EVENT, e);
       });
     </script>
   </body>
