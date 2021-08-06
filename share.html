@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title>MRKAY - Mobile Maps</title>
+  <meta property="og:title" content="MRKAY - Mobile Maps &amp; Paylaşılan konu - MAMAK/ANKARA" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="./assets/images/mrkay.png" />
+  <meta property="og:url" content="https://atlas.harita.gov.tr" />
+  <link rel="stylesheet" href="./assets/bootstrap.min.css">
+</head>
+
+<body>
+
+</body>
+<script type="text/javascript">
+    function getParameterByName(name, url = window.location.href) {
+        name = name.replace(/[\[\]]/g, '\\$&');
+        var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
+
+    var lat = parseFloat(getParameterByName('lat'));
+    var long = parseFloat(getParameterByName('long'));
+
+    function isNumber(likeNumber) {
+        return !isNaN(likeNumber);
+    }
+
+    var statusObj = {
+        isMobile: (function () {
+            var check = false;
+            if (/iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
+                check = true;
+            }
+            return check;
+        })(),
+        isAndroidDevice: navigator.userAgent.match(/Android/i),
+        isIOSDevice: (navigator.userAgent.match(/iPhone|iPad|iPod/i) || !!(navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)),
+    };
+
+    if (isNumber(lat) && isNumber(long)) {
+        if (statusObj.isMobile) {
+            if (statusObj.isIOSDevice) {
+                window.location.href = "https://maps.apple.com/?ll=" + lat + "," + long;
+            } else {
+                window.location.href = "https://www.google.com/maps?ll=" + lat + "," + long;
+            }
+        } else {
+            window.location.href = "https://atlas.harita.gov.tr/#10/" + lat + "/" + long;
+        }
+    }
+
+</script>
+</body>
+
+</html>

@@ -1,51 +1,139 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title>minExample</title>
-    <link rel="stylesheet" href="./assets/bootstrap.min.css">
-    <script src="./assets/config.js"></script>
-    <script src="./assets/main.js"></script>
-  </head>
-  <body>
-    <div class="globeParent" style="height:calc(100vh); overflow:hidden">
-      <canvas id="globe"></canvas>
-    </div>
-  </body>
-    <script type="text/javascript">
-	    
-      var PostMessageType = {
-        MESSAGE: "message",
-        EVENT: "event",
-        MAP_FUNC_CALL: "map_function_call",
-        API_FUNC_CALL: "api_function_call",
-        ERROR: "error"
-      }
-      
-      var { CSGlobe } = window.GlobeApi
-      var globeParameters = {
-      	canvas: document.getElementById('globe'),
-        globeMaxLodLevel: 19,
-	rasterMaxLodLevel: 18,
-      		raster: {
-      		url: RASTER_URL22,
-      		type: window.GlobeApi.CSRasterTypes.XYZ_MERCATOR,
-      		maxLodLevel: 19,
-      		lowerLod: false,
-      		opacity: 1.0,
-      		bbox: [-180, -90, 180, 90],
-          noDatatoEmptyImage : false
-      	},
-      	meshUrl: MESH_URL,
-      	globedll: GLOBEDLL_URL,
-        reportObj: function (values, mouseEvent) {
-	  RNPostMessage(PostMessageType.EVENT, {
-            "values": values,
-	    "mouseEvent": mouseEvent
-	  });
-	}
-      }
-      myGlobe = new CSGlobe(globeParameters)
+
+<head>
+  <meta charset="utf-8">
+  <title>MRKAY - Maps</title>
+  <meta property="og:title" content="MRKAY - Mobile Maps" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="./assets/images/mrkay.png" />
+  <meta property="og:url" content="https://atlas.harita.gov.tr" />
+  <link rel="stylesheet" href="./assets/bootstrap.min.css">
+  <link rel="stylesheet" href="./assets/bootstrap.min.css">
+  <script src="./assets/config.js"></script>
+  <script src="./assets/main.js"></script>
+</head>
+
+<body>
+  <div class="globeParent" style="height:calc(100vh); overflow:hidden">
+    <canvas id="globe"></canvas>
+  </div>
+</body>
+<script type="text/javascript">
+
+  var PostMessageType = {
+    MESSAGE: "message",
+    EVENT: "event",
+    MAP_FUNC_CALL: "map_function_call",
+    API_FUNC_CALL: "api_function_call",
+    ERROR: "error"
+  }
+
+  var { CSGlobe, CSObjectTypes, CSZMode, CSIconTypes } = window.GlobeApi;
+  var globeParameters = {
+    canvas: document.getElementById('globe'),
+    globeMaxLodLevel: 19,
+    rasterMaxLodLevel: 18,
+    raster: {
+      url: RASTER_URL21,
+      type: window.GlobeApi.CSRasterTypes.WMS,
+      maxLodLevel: 19,
+      lowerLod: false,
+      opacity: 1.0,
+      bbox: [-180, -90, 180, 90],
+      noDatatoEmptyImage: false
+    },
+    meshUrl: MESH_URL,
+    globedll: GLOBEDLL_URL,
+    reportObj: function (values, mouseEvent) {
+      RNPostMessage(PostMessageType.EVENT, {
+        "values": values,
+        "mouseEvent": mouseEvent
+      });
+    }
+  };
+
+  myGlobe = new CSGlobe(globeParameters);
+  myGlobe.api_SetMouseWheelMode(true);
+
+  const myObjectBuffer = myGlobe.api_CreateObjectBuffer("currentLocation", "currentLocation");
+
+  const isNew = true, freeDraw = true;
+  const compassObj = myGlobe.api_ObjectCreator(CSObjectTypes.POINT, isNew, freeDraw);
+
+  compassObj.attribs = {
+    "key1": "value1",
+    "key2": "value2",
+  };
+  compassObj.coords = [30.8291, 39.3098];
+  compassObj.coordsZ = [0];
+  compassObj.style = myGlobe.api_GetDefaultStyle()
+  compassObj.style.zMode = CSZMode.Z_MSL
+  compassObj.style.icon.type = CSIconTypes.URL
+  compassObj.style.icon.URL = "https://aux.iconspalace.com/uploads/compass-icon-256.png"
+  compassObj.style.titleRT = "Nokta";
+  compassObj.style.showAngles = true;
+  compassObj.style.icon.rotDeg = 50;
+  myObjectBuffer.AddObj(CSObjectTypes.POINT, compassObj);
+
+
+
+  let arcAreaObj = myGlobe.api_ObjectCreator(CSObjectTypes.ARCAREA, isNew, freeDraw);
+
+  var arcAreaObjJSONData = {
+    Fid: "arcAreaObj",
+    coords: [30.8291, 39.3098],
+    radius1: 10,
+    radius2: 2000,
+    rotDeg: 50,
+    startAng: 0,
+    endAng: 45,
+    stepAng: 5,
+    startLod: 0,
+    endLod: 19,
+    solid3D: false,
+    fixedTop: false,
+    heights: null,
+    coordsZ: [0],
+    attribs: {
+      "key1": "value1",
+      "key2": "value2",
+    },
+    style: Object.assign(myGlobe.api_GetDefaultStyle(), {
+      titleRT: "arcAreaObj",
+      filled: true,
+      border: true,
+      opacity: 0.5
+    }),
+    reportObj: function (params, event) { 
+      console.log(params.obj.Fid);
+    }
+  };
+
+  Object.assign(arcAreaObj, arcAreaObjJSONData);
+
+  myObjectBuffer.AddObj(CSObjectTypes.ARCAREA, arcAreaObj);
+
+  let tmpAngle = 10;
+  setInterval(() => {
+    compassObj.style.icon.rotDeg = Math.floor((tmpAngle + (Math.random() * 100)) % 360);
+    compassObj.style.icon.backgroundColor = "red";
+    compassObj.styleChanged();
+    // console.log(compassObj);
+
+    // let tmpObjectData = arcAreaObj.getAsJSON();
+    // myObjectBuffer.DeleteObjByRef(arcAreaObj);
+    // let arcAreaObj = myGlobe.api_ObjectCreator(CSObjectTypes.ARCAREA, isNew, freeDraw);
+    // tmpObjectData.style.rotDeg = Math.floor((tmpAngle + (Math.random() * 100)) % 360) - 22.5;
+    // tmpObjectData.style.backgroundColor = "red";
+    // Object.assign(arcAreaObj, tmpObjectData);
+    // arcAreaObj = myObjectBuffer.AddObj(CSObjectTypes.ARCAREA, tmpObjectData);
+    // console.log(arcAreaObj);
+  }, 1000);
+
+
+  myGlobe.api_AddObjectBuffer(myObjectBuffer);
+
 
   var PrivateAPI = {
     changeRaster: function () {
@@ -130,27 +218,49 @@
   }
 
   function RNPostMessage(type, payload) {
+    if (!window.ReactNativeWebView) {
+      return
+    }
     window.ReactNativeWebView.postMessage(JSON.stringify({
       "type": type,
       "payload": payload
     }));
+
   }
-	    
-	    
-      myGlobe.api_ShowDebug(false)
-      myGlobe.api_ShowOverview(false);
-	    
-      setTimeout((message) => { RNPostMessage(PostMessageType.MESSAGE, "Text message") }, 2000);
 
-      window.addEventListener('message', receiveMessage, true);
+  myGlobe.api_ShowDebug(false)
+  myGlobe.api_ShowOverview(false);
 
-      myGlobe.api_SetMouseEvents("eventType", function (e) {
-        RNPostMessage(PostMessageType.EVENT, e);
-      });
+  setTimeout((message) => { RNPostMessage(PostMessageType.MESSAGE, "Text message") }, 2000);
 
-      myGlobe.api_SetMouseEvents("down", function (e) {
-        RNPostMessage(PostMessageType.EVENT, e);
-      });
-    </script>
-  </body>
+  window.addEventListener('message', receiveMessage, true);
+
+
+
+  // myGlobe.api_SetMouseEvents("down", function (e) {
+  //   RNPostMessage(PostMessageType.EVENT, e);
+  // });
+
+  myGlobe.api_SetMouseEvents("click", function (e) {
+    console.log("click", e);
+    RNPostMessage(PostMessageType.EVENT, e);
+  });
+
+  myGlobe.api_SetMouseEvents("zoomstart", function (e) {
+    console.log("zoomstart", e);
+    RNPostMessage(PostMessageType.EVENT, e);
+  });
+
+  myGlobe.api_SetMouseEvents("zoomend", function (e) {
+    console.log(e);
+    RNPostMessage(PostMessageType.EVENT, e);
+  });
+
+  myGlobe.api_SetMouseEvents("move", function (e) {
+    console.log(e);
+    RNPostMessage(PostMessageType.EVENT, e);
+  });
+</script>
+</body>
+
 </html>
