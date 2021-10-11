@@ -6,6 +6,7 @@
   <title>MRKAY - Maps</title>
   <meta property="og:title" content="MRKAY - Mobile Maps" />
   <meta property="og:type" content="website" />
+   
   <meta property="og:image" content="./assets/images/mrkay.png" />
   <meta property="og:url" content="https://atlas.harita.gov.tr" />
   <link rel="stylesheet" href="./assets/bootstrap.min.css">
@@ -57,83 +58,40 @@
   myGlobe = new CSGlobe(globeParameters);
   myGlobe.api_SetMouseWheelMode(true);
 
-  const myObjectBuffer = myGlobe.api_CreateObjectBuffer("currentLocation", "currentLocation");
+  /*
+  //
+  Pin object
+  //
+  */
 
-  const isNew = true, freeDraw = true;
-  const compassObj = myGlobe.api_ObjectCreator(CSObjectTypes.POINT, isNew, freeDraw);
-
-  compassObj.attribs = {
-    "key1": "value1",
-    "key2": "value2",
-  };
-  compassObj.coords = [30.8291, 39.3098];
-  compassObj.coordsZ = [0];
-  compassObj.style = myGlobe.api_GetDefaultStyle()
-  compassObj.style.zMode = CSZMode.Z_MSL
-  compassObj.style.icon.type = CSIconTypes.URL
-  compassObj.style.icon.URL = "https://aux.iconspalace.com/uploads/compass-icon-256.png"
-  compassObj.style.titleRT = "Nokta";
-  compassObj.style.showAngles = true;
-  compassObj.style.icon.rotDeg = 50;
-  myObjectBuffer.AddObj(CSObjectTypes.POINT, compassObj);
-
-
-
-  let arcAreaObj = myGlobe.api_ObjectCreator(CSObjectTypes.ARCAREA, isNew, freeDraw);
-
-  var arcAreaObjJSONData = {
-    Fid: "arcAreaObj",
-    coords: [30.8291, 39.3098],
-    radius1: 10,
-    radius2: 2000,
-    rotDeg: 50,
-    startAng: 0,
-    endAng: 45,
-    stepAng: 5,
-    startLod: 0,
-    endLod: 19,
-    solid3D: false,
-    fixedTop: false,
-    heights: null,
+  const markerObj = {
+    Fid:'marker',
+    type: CSObjectTypes.POINT,
+    coords: [32,40],
     coordsZ: [0],
-    attribs: {
-      "key1": "value1",
-      "key2": "value2",
-    },
-    style: Object.assign(myGlobe.api_GetDefaultStyle(), {
-      titleRT: "arcAreaObj",
-      filled: true,
-      border: true,
-      opacity: 0.5
-    }),
-    reportObj: function (params, event) { 
-      console.log(params.obj.Fid);
+    style: myGlobe.api_GetDefaultStyle()
+  } 
+
+    markerObj.style.icon.URL = 'http://192.168.1.94/symbols/P_N.png';
+    markerObj.style.icon.sizeX = 16;
+    markerObj.style.icon.sizeY = 16;
+    markerObj.style.icon.autoScale = {
+      LOD:10,
+      minScale:0.25,
+      maxScale:4
     }
-  };
+    markerObj.style.titleRT = 'pin';
 
-  Object.assign(arcAreaObj, arcAreaObjJSONData);
-
-  myObjectBuffer.AddObj(CSObjectTypes.ARCAREA, arcAreaObj);
-
-  let tmpAngle = 10;
-  setInterval(() => {
-    compassObj.style.icon.rotDeg = Math.floor((tmpAngle + (Math.random() * 100)) % 360);
-    compassObj.style.icon.backgroundColor = "red";
-    compassObj.styleChanged();
-    // console.log(compassObj);
-
-    // let tmpObjectData = arcAreaObj.getAsJSON();
-    // myObjectBuffer.DeleteObjByRef(arcAreaObj);
-    // let arcAreaObj = myGlobe.api_ObjectCreator(CSObjectTypes.ARCAREA, isNew, freeDraw);
-    // tmpObjectData.style.rotDeg = Math.floor((tmpAngle + (Math.random() * 100)) % 360) - 22.5;
-    // tmpObjectData.style.backgroundColor = "red";
-    // Object.assign(arcAreaObj, tmpObjectData);
-    // arcAreaObj = myObjectBuffer.AddObj(CSObjectTypes.ARCAREA, tmpObjectData);
-    // console.log(arcAreaObj);
-  }, 1000);
+    console.log('MARKER', markerObj);
 
 
+  const myObjectBuffer = myGlobe.api_CreateObjectBuffer("marker", "marker");
+
+  
   myGlobe.api_AddObjectBuffer(myObjectBuffer);
+  myObjectBuffer.AddObj(CSObjectTypes.POINT, markerObj);
+ 
+
 
 
   var PrivateAPI = {
@@ -145,7 +103,7 @@
       }
 
       myGlobe.api_AddRaster({
-        url: RASTER_URL2,
+        url: RASTER_URL,
         type: window.GlobeApi.CSRasterTypes.XYZ_MERCATOR,
         maxLodLevel: 19,
         lowerLod: false,
@@ -228,8 +186,12 @@
     }));
   }
 
+  myGlobe.api_ShowStatusBar(false);
   myGlobe.api_ShowDebug(false)
   myGlobe.api_ShowOverview(false);
+  myGlobe.api_ShowCompass(false)
+
+   myGlobe.api_GetScreenCenterAsDegree();
 
   setTimeout((message) => { RNPostMessage(PostMessageType.MESSAGE, "Text message") }, 2000);
 
@@ -264,3 +226,63 @@
 </body>
 
 </html>
+
+
+
+
+
+
+
+
+// let arcAreaObj = myGlobe.api_ObjectCreator(CSObjectTypes.ARCAREA, isNew, freeDraw);
+
+// var arcAreaObjJSONData = {
+//   Fid: "arcAreaObj",
+//   coords: [30.8291, 39.3098],
+//   radius1: 10,
+//   radius2: 2000,
+//   rotDeg: 50,
+//   startAng: 0,
+//   endAng: 45,
+//   stepAng: 5,
+//   startLod: 0,
+//   endLod: 19,
+//   solid3D: false,
+//   fixedTop: false,
+//   heights: null,
+//   coordsZ: [0],
+//   attribs: {
+//     "key1": "value1",
+//     "key2": "value2",
+//   },
+//   style: Object.assign(myGlobe.api_GetDefaultStyle(), {
+//     titleRT: "arcAreaObj",
+//     filled: true,
+//     border: true,
+//     opacity: 0.5
+//   }),
+//   reportObj: function (params, event) { 
+//     console.log(params.obj.Fid);
+//   }
+// };
+
+// Object.assign(arcAreaObj, arcAreaObjJSONData);
+
+// myObjectBuffer.AddObj(CSObjectTypes.ARCAREA, arcAreaObj);
+
+// let tmpAngle = 10;
+// setInterval(() => {
+//   compassObj.style.icon.rotDeg = Math.floor((tmpAngle + (Math.random() * 100)) % 360);
+//   compassObj.style.icon.backgroundColor = "red";
+//   compassObj.styleChanged();
+  // console.log(compassObj);
+
+  // let tmpObjectData = arcAreaObj.getAsJSON();
+  // myObjectBuffer.DeleteObjByRef(arcAreaObj);
+  // let arcAreaObj = myGlobe.api_ObjectCreator(CSObjectTypes.ARCAREA, isNew, freeDraw);
+  // tmpObjectData.style.rotDeg = Math.floor((tmpAngle + (Math.random() * 100)) % 360) - 22.5;
+  // tmpObjectData.style.backgroundColor = "red";
+  // Object.assign(arcAreaObj, tmpObjectData);
+  // arcAreaObj = myObjectBuffer.AddObj(CSObjectTypes.ARCAREA, tmpObjectData);
+  // console.log(arcAreaObj);
+//}, 1000);
