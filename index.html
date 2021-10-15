@@ -67,22 +67,22 @@
   const markerObj = {
     Fid:'marker',
     type: CSObjectTypes.POINT,
-    coords: [32,40],
+    coords: [0,0],
     coordsZ: [0],
     style: myGlobe.api_GetDefaultStyle()
   } 
 
-    markerObj.style.icon.URL = 'http://192.168.1.94/symbols/P_N.png';
-    markerObj.style.icon.sizeX = 16;
-    markerObj.style.icon.sizeY = 16;
+    markerObj.style.icon.URL = 'http://10.0.0.28:8085/assets/images/marker-icon.png';
+    markerObj.style.icon.sizeX = 64;
+     markerObj.style.icon.sizeY = 64;
     markerObj.style.icon.autoScale = {
       LOD:10,
       minScale:0.25,
       maxScale:4
     }
-    markerObj.style.titleRT = 'pin';
+    markerObj.style.titleRT = '';
 
-    console.log('MARKER', markerObj);
+    
 
 
   const myObjectBuffer = myGlobe.api_CreateObjectBuffer("marker", "marker");
@@ -111,6 +111,12 @@
         bbox: [-180, -90, 180, 90],
         noDatatoEmptyImage: false
       });
+    },
+    updateMarkerCoords: function (coords) {
+      const marker = myObjectBuffer.FindObjByFid('marker');
+      marker.coords = coords;
+      marker.rebuild();
+      console.log('selam')
     }
   };
 
@@ -193,7 +199,7 @@
 
    myGlobe.api_GetScreenCenterAsDegree();
 
-  setTimeout((message) => { RNPostMessage(PostMessageType.MESSAGE, "Text message") }, 2000);
+  setTimeout((message) => { RNPostMessage(PostMessageType.MESSAGE, "Text message") }, 2);
 
   window.addEventListener('message', receiveMessage, true);
 
@@ -203,10 +209,17 @@
   //   RNPostMessage(PostMessageType.EVENT, e);
   // });
 
+  // myGlobe.api_SetMouseEvents("dbclick", function(e){
+  //   console.log("dbclick", e);
+  //   RNPostMessage(PostMessageType.EVENT, e);
+  // });
+
   myGlobe.api_SetMouseEvents("click", function (e) {
     console.log("click", e);
     RNPostMessage(PostMessageType.EVENT, e);
   });
+
+   
 
   myGlobe.api_SetMouseEvents("zoomstart", function (e) {
     console.log("zoomstart", e);
